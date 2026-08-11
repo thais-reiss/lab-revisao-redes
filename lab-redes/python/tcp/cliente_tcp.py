@@ -1,7 +1,7 @@
 import socket
 
 HOST = "localhost"
-PORTA = 5000
+PORTA = 5022
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as cliente:
     cliente.connect((HOST, PORTA))
