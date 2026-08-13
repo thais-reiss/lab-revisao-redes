@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class ServidorTCP {
     public static void main(String[] args) throws IOException {
@@ -15,11 +17,16 @@ public class ServidorTCP {
                 String mensagem;
                 while ((mensagem = entrada.readLine()) != null) {
                     System.out.println("[TCP] Recebido: " + mensagem);
-                    if (mensagem.equalsIgnoreCase("sair")) {
+                    if(mensagem.equalsIgnoreCase("hora")) {
+                        DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm:ss");
+                        String horaAtual = LocalTime.now().format(formato);
+                        saida.println("Hora atual: " + horaAtual);
+                    } else if (mensagem.equalsIgnoreCase("sair")) {
                         saida.println("Encerrando conexão. Até mais!");
                         break;
-                    }
-                    saida.println("Monitor responde: recebi sua mensagem -> \"" + mensagem + "\"");
+                    }else {
+                        saida.println("Monitor responde: recebi sua mensagem -> \"" + mensagem + "\"");
+                    }  
                 }
             }
         }
