@@ -29,3 +29,17 @@ Já para o segundo exemplo, vou citar os jogos online multiplayer em tempo real,
 
 Sim, mas isso seria implementado na lógica da aplicação, sem alterar o protocolo usado. Para isso, o servidor teria que manter uma estrutura de dados que armazenasse os clientes que já enviaram mensagens, por exemplo, associando o endereço IP e a porta de cada cliente a informações sobre ele. A cada datagrama recebido, o servidor verificaria se aquele cliente já está registrado e, caso não estivesse, poderia adicioná-lo à lista. O que mudaria na arquitetura da aplicação é que o servidor passaria a gerenciar o estado dos clientes. Também seria necessário definir mecanismos para controlar clientes inativos, como um tempo de expiração, já que o UDP não informa automaticamente quando um cliente deixou de participar da comunicação.
 
+## Parte C
+
+**1. Qual é a diferença fundamental entre enviar a mesma mensagem para 3 clientes usando unicast repetido 3 vezes e enviar uma única vez via multicast? Pense em termos de tráfego de rede.**
+
+Ao enviar em unicast repetido, o servidor cria e envia 3 cópias separadas e indênticas da mensagem, cada uma percorrendo a rede até seu destino. Assim, são realizadas 3 transmissões, uma para cada destinatário. Pensando em termos de tráfego de rede, isso gera 3x o tráfego da mensagem, e esse número cresceria ainda mais conforme fosse aumentando o número de clientes. Usando o multicast, o tráfego de rede é reduzido, porque o servidor faz uma única transmissão para todos os destinatários. Os roteadores pela rede criam cópias somente nos pontos em que o caminho para diferentes clientes se separa. 
+
+**2. O que é o TTL (time-to-live) configurado no socket multicast e por que ele é importante para controlar o alcance dos pacotes na rede?**
+
+O TTL é um contador de saltos, sendo que salto é cada vez que o pacote passa por um roteador no caminho até o destino. Ele serve para limitar a quantidade de roteadores que um pacote multicast pode atravessar antes de ser descartado pela rede. No código ele é igual a 2, o que significa que o pacote pode passar por no máximo 2 roteadores, se ele chegar a um terceiro ele deve ser descartado. Ele é importante para evitar que um pacote seja espalhado indefinidamente por toda a internet, mantendo o tráfego mais restrito. 
+
+**3. Se um dos clientes ficar temporariamente offline e voltar depois, ele recebe os avisos que perdeu? Por quê? Relacione com a arquitetura de comunicação em grupo.**
+
+Não, apenas os clientes que se inscreveram no grupo e estão ativos no momento do envio receberão os avisos. Isso acontece porque o multicast baseado em UDP não possui, por padrão, um mecanismo de armazenamento e retransmissão das mensagens para clientes que estavam desconectados. As mensagens são enviadas para um endereço IP de grupo, sem estabelecer uma conexão individual ou garantir que cada cliente recebeu o pacote.
+
