@@ -6,7 +6,7 @@ A estrutura foi organizada em duas versões paralelas, em Java e Python, permiti
 
 ## Tecnologias
 
-- Java 17
+- Java 21
 - Python 3
 - Maven (para o projeto WebSocket em Java)
 - Biblioteca `websockets` para Python
