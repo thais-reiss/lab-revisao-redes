@@ -43,3 +43,17 @@ O TTL é um contador de saltos, sendo que salto é cada vez que o pacote passa p
 
 Não, apenas os clientes que se inscreveram no grupo e estão ativos no momento do envio receberão os avisos. Isso acontece porque o multicast baseado em UDP não possui, por padrão, um mecanismo de armazenamento e retransmissão das mensagens para clientes que estavam desconectados. As mensagens são enviadas para um endereço IP de grupo, sem estabelecer uma conexão individual ou garantir que cada cliente recebeu o pacote.
 
+## Parte D
+
+**1. O WebSocket começa com uma requisição HTTP contendo o cabeçalho Upgrade: websocket. O que exatamente "muda" na conexão depois que esse handshake é concluído?**
+
+Antes do handshake, aquela conexão está seguindo as regras do protocolo HTTP. Assim, um o cliente manda uma requisição, e o servidor manda exatamente uma resposta, e esse ciclo se encerra ali. Isso porque, o servidor não tem como, dentro das regras do HTTP puro, decidir mandar algo para o cliente por conta própria, sem que o cliente tenha pedido antes. Depois que o handshake é concluído, a mesma conexão TCP deixa de seguir o modelo de requisição e resposta do HTTP e passa a seguir o protocolo WebSocket, onde qualquer um dos dois lados, cliente ou servidor, pode enviar mensagens a qualquer momento, de forma independente um do outro, sem precisar que o outro lado tenha pedido nada antes. Assim a comunicação passa a ser bidirecional.
+
+**2. Compare o mural via WebSocket (Parte D) com o aviso via Multicast (Parte C). Ambos entregam uma mensagem a vários destinatários — qual a diferença na forma como cada um descobre e alcança os destinatários?**
+
+No multicast, o servidor não conhece os destinatários, ele confia em um endereço IP de grupo, e são os roteadores que descobrem quem está inscrito e replicam o tráfego, criando cópias apenas nos pontos onde os caminhos se separam. Na prática, foi isso que aconteceu quando rodei os códigos, o servidor enviou a mesma mensagem uma única vez para o endereço de IP do grupo, sem saber quantos ou quais clientes estavam inscritos, e a rede se encarregou de entregar essa mensagem a cada um deles.
+No WebSocket ocorre o contrário, pois o próprio servidor da aplicação conhece cada cliente conectado, porque eles ficam armazenados em uma lista, que é retornada pelo método getConnections() no java e é representada por clientes_conectados no python.  Nesse caso, é o servidor que decide enviar uma cópia individual da mensagem para cada conexão presente nessa lista. Isso ficou evidente quando rodei os códigos e enviei uma mensagem pelo terminal de cada cliente. O servidor era responsável por repassar manualmente a mensagem, uma conexão por vez, para todos os clientes conectados, inclusive para o próprio remetente.
+
+**3. Por que o WebSocket é mais adequado do que TCP "cru" (como o da Parte A) para este cenário de mural em tempo real, mesmo os dois sendo, no fundo, conexões TCP contínuas?**
+
+O WebSocket é mais adequado porque apresenta suporte a múltiplas conexões simultâneas e uma lista organizada de todos os clientes conectados, usada para retransmitir mensagens a todos, características que o TCP cru da parte A não oferecia. Isso acontece porque o TCP sozinho garante apenas a entrega confiável e ordenada dos dados, ele não define como lidar com várias conexões ao mesmo tempo nem quem pode iniciar o envio de dados. O WebSocket já resolve tudo isso, por permitir comunicação contínua, bidirecional e com múltiplos participantes.
